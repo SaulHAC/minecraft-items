@@ -63,8 +63,16 @@ app.get("/api/blocks", async (req, res) => {
     const response = {
       pagination: {
         current_page: page,
-        next_page: page < totalPages ? page + 1 : null,
-        prev_page: page > 1 ? page - 1 : null,
+        //next_page: page < totalPages ? page + 1 : null,
+        next_page:
+          page < totalPages
+            ? `https://minecraft-items.onrender.com/api/blocks?page=${page + 1}`
+            : null,
+        //prev_page: page > 1 ? page - 1 : null,
+        prev_page:
+          page > 1
+            ? `https://minecraft-items.onrender.com/api/blocks?page=${page - 1}`
+            : null,
         total_pages: totalPages,
         total_count: totalItems,
       },
