@@ -12,6 +12,7 @@ app.get("/api/blocks", async (req, res) => {
     // Recibir los parámetros de la URL
     const page = parseInt(req.query.page) || 1;
     const searchQuery = req.query.search || "";
+    const searchId = req.query.id ? parseInt(req.query.id) : null;
 
     // Realizar el scraping
     const { data: html } = await axios.get(url);
@@ -63,16 +64,8 @@ app.get("/api/blocks", async (req, res) => {
     const response = {
       pagination: {
         current_page: page,
-        //next_page: page < totalPages ? page + 1 : null,
-        next_page:
-          page < totalPages
-            ? `https://minecraft-items.onrender.com/api/blocks?page=${page + 1}`
-            : null,
-        //prev_page: page > 1 ? page - 1 : null,
-        prev_page:
-          page > 1
-            ? `https://minecraft-items.onrender.com/api/blocks?page=${page - 1}`
-            : null,
+        next_page: page < totalPages ? page + 1 : null,
+        prev_page: page > 1 ? page - 1 : null,
         total_pages: totalPages,
         total_count: totalItems,
       },
