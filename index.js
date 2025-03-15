@@ -6,13 +6,13 @@ const app = express();
 const ITEMS_PER_PAGE = 20;
 const url = "https://minecraft.wiki/w/Blocks"; // URL corregida
 
-// Endpoint para obtener los bloques con paginación y búsqueda
+// Endpoint para obtener los bloques con paginación y búsqueda por nombre o por ID
 app.get("/api/blocks", async (req, res) => {
   try {
     // Recibir los parámetros de la URL
     const page = parseInt(req.query.page) || 1;
-    const searchQuery = req.query.search || "";
-    const searchId = req.query.id ? parseInt(req.query.id) : null;
+    const searchQuery = req.query.search || ""; // Para buscar por nombre
+    const searchId = req.query.id ? parseInt(req.query.id) : null; // Para buscar por ID
 
     // Realizar el scraping
     const { data: html } = await axios.get(url);
@@ -29,18 +29,31 @@ app.get("/api/blocks", async (req, res) => {
         const imageUrl = img.replace(/\/30px-/, "/300px-");
 
         blocksData.push({
-          id: i,
+          id: i, // Usar el índice como ID
           name: name,
           image: "https://minecraft.wiki" + imageUrl,
         });
       }
     });
 
-    // Filtrar los datos si hay una búsqueda
+    // Filtrar por ID si se proporciona
+    if (searchId !== null) {
+      blocksData = blocksData.filter((block) => block.id === searchId);
+    }
+
+    // Filtrar por nombre si se proporciona una búsqueda
     if (searchQuery) {
       blocksData = blocksData.filter((block) =>
         block.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
+    }
+
+    // Si no se encontró el ID o el nombre, devolver un mensaje de error
+    if (
+      (searchId !== null && blocksData.length === 0) ||
+      (searchQuery && blocksData.length === 0)
+    ) {
+      return res.status(404).json({ error: `Bloque no encontrado` });
     }
 
     // Calcular el total de elementos
